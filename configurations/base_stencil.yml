@@ -1,0 +1,8 @@
+secrets:
+  secretKey: # django secret key
+services:
+  database:
+    host: # database host
+    user: # database user
+    password: # database password
+    name: # database name

@@ -1,0 +1,1 @@
+from mahi_auth.admin import admin
