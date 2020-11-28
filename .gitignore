@@ -4,7 +4,8 @@ __pycache__/
 *$py.class
 
 # Migrations
-migrations/
+migrations/*
+!migrations/__init__.py
 
 # Configuration file
 base.yml
