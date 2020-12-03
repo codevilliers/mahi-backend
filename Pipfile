@@ -9,8 +9,10 @@ djangorestframework = "*"
 psycopg2 = "*"
 pyyaml = "*"
 pillow = "*"
+firebase-admin = "*"
 
 [dev-packages]
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.8"

@@ -9,6 +9,7 @@ migrations/*
 
 # Configuration file
 base.yml
+mahi_firebase.json
 
 #swap files
 *.swo
