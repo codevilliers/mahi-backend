@@ -22,6 +22,7 @@ class Login(GenericAPIView):
     permission_classes = [permissions.AllowAny, ]
 
     def post(self, request):
+        print('inside post **********')
         if request.user.is_authenticated:
             response_data = {
                 'error': 'You are already logged in.',
@@ -31,11 +32,19 @@ class Login(GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         data = request.data
+        # print(data)
         token = data['token']
+        # print(token)
         decoded_token = auth.verify_id_token(token)
+        print('decoded_token')
+        print(decoded_token)
         uid = decoded_token['uid']
+        print('uid')
+        print(uid)
         user = auth.get_user(uid)
-        user_data = user.data
+        print('user')
+        print(user.__dict__)
+        user_data = user._data
         email = user_data.get('email')
         phone_number = user_data.get('phoneNumber')
         if email is None and phone_number is None:
