@@ -59,10 +59,10 @@ class User(AbstractUser):
         username = self.username
         email = self.email
         phone_number = self.phone_number
-        if username is not None:
+        if username:
             return username
-        if email is not None:
+        if email:
             return email
-        if phone_number is not None:
+        if phone_number:
             return phone_number
         return 'Unknown user'

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',  # remove in production
     'mahi_auth.apps.MahiAuthConfig',
     'mahi_app.apps.MahiAppConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
