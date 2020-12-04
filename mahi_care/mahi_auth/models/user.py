@@ -4,10 +4,23 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
+    firebase_uid = models.CharField(
+        max_length=150,
+        blank=True,
+        default=None,
+        null=True,
+    )
+
+    sign_in_provider = models.CharField(
+        max_length=20,
+        default='django'
+    )
+
     first_name = models.CharField(
         _('first name'),
         max_length=150,
         blank=True,
+        default=None,
         null=True,
     )
 
@@ -15,6 +28,7 @@ class User(AbstractUser):
         _('last name'),
         max_length=150,
         blank=True,
+        default=None,
         null=True,
     )
 
@@ -22,6 +36,7 @@ class User(AbstractUser):
         _('email address'),
         blank=True,
         null=True,
+        default=None,
     )
 
     username = models.CharField(
@@ -46,7 +61,10 @@ class User(AbstractUser):
         unique=True,
         blank=True,
         null=True,
+        default=None,
     )
+
+    email_verified = models.BooleanField(default=False)
 
     display_picture = models.ImageField(
         upload_to='personal_files',

@@ -39,10 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'corsheaders',  # remove in production
     'mahi_auth.apps.MahiAuthConfig',
     'mahi_app.apps.MahiAppConfig',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
