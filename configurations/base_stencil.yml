@@ -6,3 +6,4 @@ services:
     user: # database user
     password: # database password
     name: # database name
+    port: # database port, default: 5432

@@ -100,6 +100,7 @@ DATABASES = {
         'USER': DATABASE['user'],
         'PASSWORD': DATABASE['password'],
         'HOST': DATABASE['host'],
+        'PORT': DATABASE['port']
     }
 }
 
