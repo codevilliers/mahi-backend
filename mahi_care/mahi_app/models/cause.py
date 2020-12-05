@@ -64,7 +64,7 @@ class Cause(models.Model):
         Media,
         content_type_field='entity_content_type',
         object_id_field='entity_object_id',
-        related_name='cause_media'
+        related_name='media_cause'
     )
 
     is_whitelisted = models.BooleanField(default=False)
