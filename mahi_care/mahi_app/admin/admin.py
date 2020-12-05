@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from mahi_app.models import BankDetails, Tags, Cause, Volunteer, Activity, Suggestion, Donation, Media
+from mahi_app.models import BankDetail, Tag, Cause, Volunteer, Activity, Suggestion, Donation, Media
 
-admin.site.register(BankDetails)
-admin.site.register(Tags)
+admin.site.register(BankDetail)
+admin.site.register(Tag)
 admin.site.register(Cause)
 admin.site.register(Volunteer)
 admin.site.register(Activity)

@@ -1,7 +1,10 @@
-from django.db import models
-from mahi_auth.models import User
-from mahi_app.models import Tags, BankDetails
 import uuid
+from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
+
+from mahi_auth.models import User
+from mahi_app.models import Tag, BankDetail, Media
+
 
 class Cause(models.Model):
     person = models.ForeignKey(
@@ -31,13 +34,25 @@ class Cause(models.Model):
     deadline = models.DateTimeField()
 
     tag = models.ManyToManyField(
-        'Tags',
+        'Tag',
         related_name='associated_tag',
     )
 
     bankDetail = models.ForeignKey(
-        'BankDetails',
+        BankDetail,
         related_name='associated_account',
         null=True,
         on_delete=models.SET_NULL
     )
+
+    media_files = GenericRelation(
+        Media,
+        content_type_field='entity_content_type',
+        object_id_field='entity_object_id',
+        related_name='cause_media'
+    )
+
+    def __str__(self):
+        id = self.id
+        created_by_person = self.person
+        return f"Cause {id} created by {created_by_person}"
