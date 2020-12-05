@@ -3,6 +3,7 @@ from mahi_app.models import Cause
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from mahi_app.serializers import CauseSerializer
+from mahi_app.serializers.cause import CauseDetailSerializer
 
 
 class CauseViewSet(viewsets.ModelViewSet):
@@ -17,3 +18,8 @@ class CauseViewSet(viewsets.ModelViewSet):
             return queryset
         else:
             return super().get_queryset()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = CauseDetailSerializer(instance)
+        return Response(serializer.data)

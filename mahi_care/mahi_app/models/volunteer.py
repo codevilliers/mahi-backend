@@ -6,12 +6,12 @@ from mahi_app.models import Cause
 class Volunteer(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     cause = models.ManyToManyField(
         Cause,
-        related_name="associated_causes"
+        related_name="associated_volunteers"
     )
 
     def __str__(self):

@@ -3,18 +3,31 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 
 from mahi_auth.models import User
-from mahi_app.models import Tag, BankDetail, Media
+from mahi_app.models import Tag, BankDetail, Media, NeedyPerson
 
 
 class Cause(models.Model):
-    person = models.ForeignKey(
+    created_by = models.ForeignKey(
         User,
         related_name='needy_person',
         on_delete=models.CASCADE
     )
 
+    needy_person = models.OneToOneField(
+        NeedyPerson,
+        related_name='needy_cause',
+        on_delete=models.CASCADE
+    )
+
+    cover_photo = models.ImageField(
+        upload_to='media_files/cover_photos',
+        max_length=255,
+    )
+
     sharing_id = models.UUIDField(
-        default=uuid.uuid4, editable=False, db_index=True
+        default=uuid.uuid4,
+        editable=False,
+        db_index=True
     )
 
     description = models.TextField()
@@ -25,8 +38,10 @@ class Cause(models.Model):
 
     goal = models.IntegerField()
 
-    supporter_count = models.IntegerField(
-        default=0,
+    liked_by = models.ManyToManyField(
+        User,
+        related_name='liked_causes',
+        blank=True
     )
 
     created_on = models.DateTimeField(auto_now_add=True)
@@ -52,7 +67,13 @@ class Cause(models.Model):
         related_name='cause_media'
     )
 
+    is_whitelisted = models.BooleanField(default=False)
+
+    def supporter_count(self):
+        count = self.liked_by.all().count()
+        return count
+
     def __str__(self):
         id = self.id
-        created_by_person = self.person
+        created_by_person = self.created_by
         return f"Cause {id} created by {created_by_person}"

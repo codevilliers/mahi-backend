@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 
 from mahi_auth.models import User
-from mahi_app.models import Cause, Media
+from mahi_app.models import Cause, Media, Volunteer
 
 
 class Event(models.Model):
@@ -19,14 +19,14 @@ class Activity(Event):
     This model refers to activities associated with cause
     """
     person = models.ForeignKey(
-        User,
-        related_name='activity_person',
+        Volunteer,
+        related_name='volunteer_activities',
         on_delete=models.CASCADE
     )
 
     cause = models.ForeignKey(
         Cause,
-        related_name='activity_cause',
+        related_name='cause_activities',
         on_delete=models.CASCADE
     )
 
@@ -47,13 +47,13 @@ class Suggestion(Event):
     """
     person = models.ForeignKey(
         User,
-        related_name='suggestion_person',
+        related_name='person_suggestions',
         on_delete=models.CASCADE
     )
 
     cause = models.ForeignKey(
         Cause,
-        related_name='suggestion_cause',
+        related_name='cause_suggestions',
         on_delete=models.CASCADE
     )
 
@@ -71,12 +71,12 @@ class Donation(Event):
     """
     person = models.ForeignKey(
         User,
-        related_name='donation_person',
+        related_name='person_donations',
         on_delete=models.CASCADE
     )
     cause = models.ForeignKey(
         Cause,
-        related_name='donation_cause',
+        related_name='cause_donations',
         on_delete=models.CASCADE
     )
 

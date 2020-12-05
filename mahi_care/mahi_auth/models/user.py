@@ -73,6 +73,11 @@ class User(AbstractUser):
         null=True,
     )
 
+    def display_name(self):
+        first_name = self.first_name
+        last_name = self.last_name
+        return f"{first_name} {last_name}"
+
     def __str__(self):
         username = self.username
         email = self.email
