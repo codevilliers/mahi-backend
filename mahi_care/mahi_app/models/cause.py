@@ -3,19 +3,14 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 
 from mahi_auth.models import User
-from mahi_app.models import Tag, BankDetail, Media, NeedyPerson
+from mahi_app.models import Tag, Media
+from mahi_app import constants
 
 
 class Cause(models.Model):
     created_by = models.ForeignKey(
         User,
         related_name='needy_person',
-        on_delete=models.CASCADE
-    )
-
-    needy_person = models.OneToOneField(
-        NeedyPerson,
-        related_name='needy_cause',
         on_delete=models.CASCADE
     )
 
@@ -53,13 +48,6 @@ class Cause(models.Model):
         related_name='associated_tag',
     )
 
-    bankDetail = models.ForeignKey(
-        BankDetail,
-        related_name='associated_account',
-        null=True,
-        on_delete=models.SET_NULL
-    )
-
     media_files = GenericRelation(
         Media,
         content_type_field='entity_content_type',
@@ -68,6 +56,44 @@ class Cause(models.Model):
     )
 
     is_whitelisted = models.BooleanField(default=False)
+
+    needy_name = models.CharField(max_length=63)
+
+    needy_phone_number = models.CharField(max_length=15)
+
+    needy_address = models.CharField(max_length=255)
+
+    needy_email = models.EmailField(blank=True, null=True)
+
+    needy_photo = models.ImageField(
+        upload_to='media_files/needy_photos',
+        max_length=255,
+    )
+
+    bank_name = models.CharField(
+        max_length=200,
+        choices=constants.BankOptions,
+        null=True,
+        blank=True
+    )
+
+    bank_ifsc_code = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True
+    )
+
+    bank_account_no = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True
+    )
+
+    bank_upi_id = models.CharField(
+        max_length=63,
+        null=True,
+        blank=True
+    )
 
     def supporter_count(self):
         count = self.liked_by.all().count()

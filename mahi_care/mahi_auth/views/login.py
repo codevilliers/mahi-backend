@@ -6,16 +6,23 @@ from rest_framework import permissions
 from firebase_admin import auth
 
 from mahi_auth.models import User
-from mahi_auth.serializers.user import UserSerializer
+from mahi_auth.serializers.user import UserSerializer, WhoAmISerializer
 
 
 def get_success_response(user):
-    user_serializer = UserSerializer(user)
+    user_serializer = WhoAmISerializer(user)
     success_response_data = {
-        'status': 'Successfully logged in',
         'user': user_serializer.data
     }
     return Response(data=success_response_data, status=status.HTTP_200_OK)
+
+
+def check_phone_number_exists(phone_number):
+    users = User.objects.filter(phone_number=phone_number)
+    if users:
+        return True
+    else:
+        return False
 
 
 class Login(GenericAPIView):
@@ -75,6 +82,21 @@ class Login(GenericAPIView):
                 last_name = ' '.join(name_list)
                 user_object['first_name'] = first_name
                 user_object['last_name'] = last_name
+            elif sign_in_provider == 'phone':
+                name = data.get('name')
+                if name:
+                    auth.update_user(
+                        firebase_uid,
+                        display_name=name,
+                    )
+                    name_list = name.split()
+                    first_name = name_list.pop(0)
+                    last_name = ' '.join(name_list)
+                    user_object['first_name'] = first_name
+                    user_object['last_name'] = last_name
+                else:
+                    user_object['first_name'] = None
+                    user_object['last_name'] = None
             else:
                 user_object['first_name'] = None
                 user_object['last_name'] = None
@@ -97,3 +119,14 @@ class Login(GenericAPIView):
                 data=response_data,
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class CheckPhoneNumberExists(GenericAPIView):
+    permission_classes = [permissions.AllowAny, ]
+
+    def post(self, request):
+        data = request.data
+        phone_number = data['phone_number']
+        phone_number_exists = check_phone_number_exists(phone_number)
+        response_data = {'phone_number_exists': phone_number_exists}
+        return Response(response_data, status=status.HTTP_200_OK)

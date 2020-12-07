@@ -8,8 +8,6 @@ from mahi_app.serializers.user import UserProfileSerializer, \
 from mahi_app.serializers.event import ActivitySerializer, \
     SuggestionSerializer, \
     DonationSerializer
-from mahi_app.serializers.bank_detail import BankDetailSerializer
-from mahi_app.serializers.needy import NeedyPersonSerializer
 
 
 class CauseSerializer(serializers.ModelSerializer):
@@ -26,9 +24,7 @@ class CauseDetailSerializer(serializers.ModelSerializer):
     media_files = MediaSerializer(read_only=True, many=True)
     benchmark_media = BenchmarkMediaSerializer(read_only=True, many=True)
     created_by = UserProfileSerializer(read_only=True)
-    needy_person = NeedyPersonSerializer(read_only=True)
     supporter_count = serializers.ReadOnlyField()
-    bankDetail = BankDetailSerializer(read_only=True)
     associated_volunteers = VolunteerProfileSerializer(
         read_only=True,
         many=True

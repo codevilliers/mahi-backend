@@ -1,6 +1,6 @@
 from django.urls import path
 
-from mahi_auth.views.login import Login
+from mahi_auth.views.login import Login, CheckPhoneNumberExists
 from mahi_auth.views.logout import Logout
 from mahi_auth.views.delete import Delete
 from mahi_auth.views.who_am_i import WhoAmIView
@@ -11,6 +11,11 @@ urlpatterns = [
         'who_am_i/',
         WhoAmIView.as_view(),
         name='who_am_i'
+    ),
+    path(
+        'phone_number_exists/',
+        CheckPhoneNumberExists.as_view(),
+        name='phone_number_exists'
     ),
     path(
         'login/',
