@@ -13,6 +13,7 @@ from mahi_app.serializers.event import ActivitySerializer, \
 class CauseSerializer(serializers.ModelSerializer):
     tag = TagSerializer(read_only=True, many=True)
     media_files = MediaSerializer(read_only=True, many=True)
+    supporter_count = serializers.ReadOnlyField()
 
     class Meta:
         model = Cause
