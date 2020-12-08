@@ -1,5 +1,7 @@
 from rest_framework import generics, viewsets
+from rest_framework.decorators import action
 from mahi_app.models import Cause
+from mahi_auth.models import User
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from mahi_app.serializers import CauseSerializer
@@ -21,5 +23,17 @@ class CauseViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        serializer = CauseDetailSerializer(instance)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['PATCH'], url_name='update_liked_user', url_path='update_liked_user')
+    def update_liked_user(self, request, pk):
+        user = User.objects.get(id = request.user.id)
+        instance = self.get_object()
+        if not user in instance.liked_by.all():
+            instance.liked_by.add(user)
+        else:
+            instance.liked_by.remove(user)
+        instance.save()
         serializer = CauseDetailSerializer(instance)
         return Response(serializer.data)
