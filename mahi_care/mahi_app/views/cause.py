@@ -37,7 +37,8 @@ class CauseViewSet(viewsets.ModelViewSet):
         data = request.data
         media_files = data.pop('media_files', None)
         benchmark_media = data.pop('benchmark_media', None)
-        create_serializer = CauseCreateSerializer(data=request.data)
+        data['created_by'] = request.user.id
+        create_serializer = CauseCreateSerializer(data=data)
         create_serializer.is_valid(raise_exception=True)
         tags = request.POST.getlist('tag')
         if media_files is None or benchmark_media is None:
