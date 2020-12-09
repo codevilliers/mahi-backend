@@ -23,6 +23,7 @@ class WhoAmISerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            'id',
             'email',
             'phone_number',
             'first_name',
