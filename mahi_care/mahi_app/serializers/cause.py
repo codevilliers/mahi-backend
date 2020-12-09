@@ -37,3 +37,10 @@ class CauseDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cause
         fields = '__all__'
+
+
+class CauseCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Cause
+        exclude = ['liked_by', 'tag']
