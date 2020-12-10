@@ -86,6 +86,12 @@ class Cause(models.Model):
         blank=True
     )
 
+    volunteer_request = models.ManyToManyField(
+        User,
+        related_name='requested_causes',
+        blank=True
+    )
+
     def supporter_count(self):
         count = self.liked_by.all().count()
         return count

@@ -1,8 +1,10 @@
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import permissions
+
 from mahi_app.models import Cause
 from mahi_auth.models import User
-from rest_framework.response import Response
 from rest_framework import status
 from mahi_app.serializers import CauseSerializer
 from mahi_app.serializers.cause import CauseDetailSerializer, \
@@ -34,7 +36,8 @@ class CauseViewSet(viewsets.ModelViewSet):
         serializer = CauseDetailSerializer(instance)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['PATCH'], url_name='update_liked_user', url_path='update_liked_user')
+    @action(detail=True, methods=['PATCH'], url_name='update_liked_user',
+            url_path='update_liked_user')
     def update_liked_user(self, request, pk):
         user = User.objects.get(id = request.user.id)
         instance = self.get_object()
@@ -45,6 +48,23 @@ class CauseViewSet(viewsets.ModelViewSet):
         instance.save()
         serializer = CauseDetailSerializer(instance)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['PATCH'], url_name='volunteer_request',
+            url_path='volunteer_request',
+            permission_classes=[permissions.IsAuthenticated,])
+    def volunteer_request(self, request, pk):
+        user = request.user
+        instance = self.get_object()
+        if user not in instance.volunteer_request.all():
+            instance.volunteer_request.add(user)
+            instance.save()
+            response_data = {'message': 'Request successful'}
+        else:
+            response_data = {
+                'message': 'You have already requested to volunteer'
+            }
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         request.data._mutable = True
