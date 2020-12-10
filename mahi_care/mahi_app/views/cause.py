@@ -47,10 +47,12 @@ class CauseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
+        request.data._mutable = True
         data = request.data
         media_files = data.pop('media_files', None)
         benchmark_media = data.pop('benchmark_media', None)
         data['created_by'] = request.user.id
+        request.data._mutable = False
         create_serializer = CauseCreateSerializer(data=data)
         create_serializer.is_valid(raise_exception=True)
         tags = request.POST.getlist('tag')
