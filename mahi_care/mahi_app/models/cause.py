@@ -1,9 +1,7 @@
 import uuid
 from django.db import models
-from django.contrib.contenttypes.fields import GenericRelation
 
 from mahi_auth.models import User
-from mahi_app.models import Tag, Media
 from mahi_app import constants
 
 
@@ -41,18 +39,11 @@ class Cause(models.Model):
 
     created_on = models.DateTimeField(auto_now_add=True)
 
-    deadline = models.DateTimeField()
+    deadline = models.DateField()
 
     tag = models.ManyToManyField(
         'Tag',
         related_name='associated_tag',
-    )
-
-    media_files = GenericRelation(
-        Media,
-        content_type_field='entity_content_type',
-        object_id_field='entity_object_id',
-        related_name='media_cause'
     )
 
     is_whitelisted = models.BooleanField(default=False)
@@ -103,3 +94,6 @@ class Cause(models.Model):
         id = self.id
         created_by_person = self.created_by
         return f"Cause {id} created by {created_by_person}"
+
+    class Meta:
+        ordering = ['-created_on']

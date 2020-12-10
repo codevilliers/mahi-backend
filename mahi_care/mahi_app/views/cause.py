@@ -4,7 +4,6 @@ from mahi_app.models import Cause
 from mahi_auth.models import User
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.views import APIView
 from mahi_app.serializers import CauseSerializer
 from mahi_app.serializers.cause import CauseDetailSerializer, \
     CauseCreateSerializer
@@ -55,15 +54,16 @@ class CauseViewSet(viewsets.ModelViewSet):
         create_serializer = CauseCreateSerializer(data=data)
         create_serializer.is_valid(raise_exception=True)
         tags = request.POST.getlist('tag')
-        if media_files is None or benchmark_media is None:
-            message = 'Please upload the media files.'
+        if benchmark_media is None:
+            message = 'Please upload benchmark media.'
             return missingDataErrorResponse(message)
         if not tags:
             message = 'Please add a category for the cause'
             return missingDataErrorResponse(message)
         cause = Cause.objects.create(**create_serializer.validated_data)
-        for file in media_files:
-            cause.media_files.create(media=file)
+        if media_files is not None:
+            for file in media_files:
+                cause.media_files.create(media=file)
         for file in benchmark_media:
             cause.benchmark_media.create(media=file)
         cause.tag.set(tags)

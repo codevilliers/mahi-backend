@@ -1,8 +1,7 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericRelation
 
 from mahi_auth.models import User
-from mahi_app.models import Cause, Media, Volunteer
+from mahi_app.models import Cause, Volunteer
 
 
 class Event(models.Model):
@@ -80,11 +79,9 @@ class Donation(Event):
         on_delete=models.CASCADE
     )
 
-    media_files = GenericRelation(
-        Media,
-        content_type_field='entity_content_type',
-        object_id_field='entity_object_id',
-        related_name='donation_media'
+    media = models.FileField(
+        upload_to='donation_media',
+        max_length=255,
     )
 
     def __str__(self):

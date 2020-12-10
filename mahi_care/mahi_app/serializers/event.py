@@ -24,7 +24,6 @@ class SuggestionSerializer(serializers.ModelSerializer):
 
 class DonationSerializer(serializers.ModelSerializer):
     person = UserProfileSerializer(read_only=True)
-    media_files = MediaSerializer(read_only=True, many=True)
 
     class Meta:
         model = Donation

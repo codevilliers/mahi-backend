@@ -1,24 +1,12 @@
 from django.db import models
-from django.db.models import Q
-from django.contrib.contenttypes import models as contenttypes_models
-from django.contrib.contenttypes import fields as contenttypes_fields
+from mahi_app.models import Cause
 
 
 class Media(models.Model):
-    limit = Q(app_label='mahi_app', model='cause') | \
-            Q(app_label='mahi_app', model='donation')
-
-    entity_content_type = models.ForeignKey(
-        to=contenttypes_models.ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=limit,
-    )
-
-    entity_object_id = models.PositiveIntegerField()
-
-    associated_to = contenttypes_fields.GenericForeignKey(
-        ct_field='entity_content_type',
-        fk_field='entity_object_id',
+    cause = models.ForeignKey(
+        Cause,
+        related_name='media_files',
+        on_delete=models.CASCADE
     )
     
     media = models.FileField(
@@ -34,4 +22,25 @@ class Media(models.Model):
 
     class Meta:
         verbose_name_plural = "media"
+
+
+class BenchmarkMedia(models.Model):
+
+    media = models.FileField(
+        upload_to='media_files',
+        max_length=255,
+    )
+
+    cause = models.ForeignKey(
+        Cause,
+        related_name='benchmark_media',
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        id = self.id
+        return f"Benchmark Media {id}"
+
+    class Meta:
+        verbose_name_plural = "Benchmark media"
 
