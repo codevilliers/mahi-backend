@@ -1,11 +1,11 @@
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import permissions
+from rest_framework import permissions, status, filters
+from django.db.models import Count
 
 from mahi_app.models import Cause
 from mahi_auth.models import User
-from rest_framework import status
 from mahi_app.serializers import CauseSerializer
 from mahi_app.serializers.cause import CauseDetailSerializer, \
     CauseCreateSerializer
@@ -25,11 +25,23 @@ class CauseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         tag = self.request.query_params.get('tag')
+        ordering = self.request.query_params.get('ordering')
+        queryset = Cause.objects.all()
         if tag and int(tag) != 0:
-            queryset = Cause.objects.filter(tag=tag)
+            queryset = queryset.filter(tag=tag)
+        if ordering:
+            if ordering == '-created_on' or ordering == 'created_on':
+                queryset = queryset.order_by(ordering)
+                return queryset
+            elif ordering == '-supporter_count' or \
+                    ordering == 'supporter_count':
+                queryset = queryset.annotate(
+                    supporter_count=Count('liked_by')).\
+                    order_by(ordering, '-created_on')
+                return queryset
             return queryset
         else:
-            return super().get_queryset()
+            return queryset
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
