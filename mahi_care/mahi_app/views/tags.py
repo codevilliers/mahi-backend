@@ -9,3 +9,4 @@ class TagViewSet(viewsets.ModelViewSet):
     # permission_classes = [permissions.IsAuthenticated]
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
