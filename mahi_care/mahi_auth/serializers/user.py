@@ -20,6 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class WhoAmISerializer(serializers.ModelSerializer):
 
+    is_volunteer = serializers.ReadOnlyField()
+
     class Meta:
         model = User
         fields = [
@@ -31,5 +33,6 @@ class WhoAmISerializer(serializers.ModelSerializer):
             'email_verified',
             'firebase_uid',
             'display_picture',
-            'sign_in_provider'
+            'sign_in_provider',
+            'is_volunteer',
         ]
