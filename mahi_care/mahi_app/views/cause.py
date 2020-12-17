@@ -1,5 +1,6 @@
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import permissions, status, filters
 from django.db.models import Count
@@ -9,6 +10,7 @@ from mahi_auth.models import User
 from mahi_app.serializers import CauseSerializer
 from mahi_app.serializers.cause import CauseDetailSerializer, \
     CauseCreateSerializer
+from mahi_app.permissions import IsVolunteer
 
 
 def missingDataErrorResponse(message):
@@ -20,13 +22,21 @@ def missingDataErrorResponse(message):
 
 class CauseViewSet(viewsets.ModelViewSet):
     # permission_classes = [permissions.IsAuthenticated]
-    queryset = Cause.objects.all()
+    queryset = Cause.objects.filter(is_whitelisted=True)
     serializer_class = CauseSerializer
 
     def get_queryset(self):
         tag = self.request.query_params.get('tag')
         ordering = self.request.query_params.get('ordering')
-        queryset = Cause.objects.all()
+        pending = self.request.query_params.get('pending')
+        try:
+            is_volunteer = self.request.user.is_volunteer()
+        except AttributeError:
+            is_volunteer = False
+        if pending == 'true' and is_volunteer:
+            queryset = Cause.objects.filter(is_whitelisted=False)
+        else:
+            queryset = Cause.objects.filter(is_whitelisted=True)
         if tag and int(tag) != 0:
             queryset = queryset.filter(tag=tag)
         if ordering:
@@ -43,6 +53,34 @@ class CauseViewSet(viewsets.ModelViewSet):
         else:
             return queryset
 
+    def get_object(self):
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+                'Expected view %s to be called with a URL keyword argument '
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                'attribute on the view correctly.' %
+                (self.__class__.__name__, lookup_url_kwarg)
+        )
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+
+        try:
+            is_volunteer = self.request.user.is_volunteer()
+        except AttributeError:
+            is_volunteer = False
+
+        if is_volunteer:
+            queryset = Cause.objects.all()
+            obj = get_object_or_404(queryset, **filter_kwargs)
+            self.check_object_permissions(self.request, obj)
+            return obj
+        else:
+            queryset = Cause.objects.filter(is_whitelisted=True)
+            obj = get_object_or_404(queryset, **filter_kwargs)
+            self.check_object_permissions(self.request, obj)
+            return obj
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = CauseDetailSerializer(instance)
@@ -53,7 +91,7 @@ class CauseViewSet(viewsets.ModelViewSet):
     def update_liked_user(self, request, pk):
         user = User.objects.get(id = request.user.id)
         instance = self.get_object()
-        if not user in instance.liked_by.all():
+        if user not in instance.liked_by.all():
             instance.liked_by.add(user)
         else:
             instance.liked_by.remove(user)
@@ -63,7 +101,7 @@ class CauseViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PATCH'], url_name='volunteer_request',
             url_path='volunteer_request',
-            permission_classes=[permissions.IsAuthenticated,])
+            permission_classes=[permissions.IsAuthenticated, ])
     def volunteer_request(self, request, pk):
         user = request.user
         instance = self.get_object()
@@ -77,6 +115,20 @@ class CauseViewSet(viewsets.ModelViewSet):
             }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['PATCH'], url_name='whitelist_cause',
+            url_path='whitelist_cause',
+            permission_classes=[permissions.IsAuthenticated & IsVolunteer])
+    def whitelist_cause(self, request, pk):
+        volunteer = request.user.volunteer
+        instance = self.get_object()
+        instance.is_whitelisted = True
+        instance.associated_volunteers.add(volunteer)
+        instance.save()
+        response_data = {
+            'message': 'Cause whitelisted successfully',
+        }
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         request.data._mutable = True

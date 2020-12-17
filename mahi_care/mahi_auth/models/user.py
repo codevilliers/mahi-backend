@@ -78,6 +78,16 @@ class User(AbstractUser):
         last_name = self.last_name
         return f"{first_name} {last_name}"
 
+    def is_volunteer(self):
+        try:
+            volunteer = self.volunteer
+            if volunteer:
+                return True
+            else:
+                return False
+        except User.volunteer.RelatedObjectDoesNotExist:
+            return False
+
     def __str__(self):
         username = self.username
         email = self.email
