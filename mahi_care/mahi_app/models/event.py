@@ -11,6 +11,7 @@ class Event(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['-created_on', ]
 
 
 class Activity(Event):
@@ -36,7 +37,7 @@ class Activity(Event):
         person = self.person
         return f"Activity {id} by {person} for cause {cause_id}"
 
-    class Meta:
+    class Meta(Event.Meta):
         verbose_name_plural = "activities"
 
 

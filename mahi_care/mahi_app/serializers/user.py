@@ -13,7 +13,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['display_name', 'display_picture']
+        fields = ['id', 'display_name', 'display_picture']
 
 
 class VolunteerProfileSerializer(serializers.ModelSerializer):
