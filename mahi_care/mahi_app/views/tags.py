@@ -1,12 +1,12 @@
-from rest_framework import generics, viewsets
+from rest_framework import viewsets
+
+from mahi_app.permissions import ReadOnly
 from mahi_app.models import Tag
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from mahi_app.serializers import TagSerializer
 
 
 class TagViewSet(viewsets.ModelViewSet):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnly]
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
