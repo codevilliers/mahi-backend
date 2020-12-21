@@ -21,7 +21,7 @@ def missingDataErrorResponse(message):
 
 
 class CauseViewSet(viewsets.ModelViewSet):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     queryset = Cause.objects.filter(is_whitelisted=True)
     serializer_class = CauseSerializer
 

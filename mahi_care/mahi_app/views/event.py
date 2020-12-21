@@ -7,6 +7,7 @@ from mahi_app.models import Cause, Activity, Suggestion, Donation
 from mahi_app.serializers import ActivitySerializer, DonationSerializer, SuggestionSerializer
 from mahi_app.models import Volunteer
 from mahi_app.permissions import IsVolunteer
+from mahi_app.permissions.read_only import ReadOnly, CreateOrReadOnly
 
 
 def validate_activity(cause, activity_description):
@@ -81,12 +82,12 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
 
 class DonationViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [CreateOrReadOnly, ]
     queryset = Donation.objects.all()
     serializer_class = DonationSerializer
 
 
 class SuggestionViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [CreateOrReadOnly, ]
     queryset = Suggestion.objects.all()
     serializer_class = SuggestionSerializer
