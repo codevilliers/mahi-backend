@@ -31,8 +31,16 @@ class CauseDetailSerializer(serializers.ModelSerializer):
         many=True
     )
     cause_donations = DonationSerializer(read_only=True, many=True)
-    cause_suggestions = SuggestionSerializer(read_only=True, many=True)
-    cause_activities = ActivitySerializer(read_only=True, many=True)
+    cause_suggestions = serializers.SerializerMethodField()
+    cause_activities = serializers.SerializerMethodField()
+
+    def get_cause_suggestions(self, obj):
+        suggestions = obj.cause_suggestions.all()[:5]
+        return SuggestionSerializer(suggestions, many=True).data
+
+    def get_cause_activities(self, obj):
+        activities = obj.cause_activities.all()[:3]
+        return ActivitySerializer(activities, many=True).data
 
     class Meta:
         model = Cause

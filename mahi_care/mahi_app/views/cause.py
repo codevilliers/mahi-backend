@@ -7,10 +7,12 @@ from django.db.models import Count
 
 from mahi_app.models import Cause
 from mahi_auth.models import User
-from mahi_app.serializers import CauseSerializer
+from mahi_app.serializers import CauseSerializer, SuggestionSerializer, \
+    ActivitySerializer
 from mahi_app.serializers.cause import CauseDetailSerializer, \
     CauseCreateSerializer
 from mahi_app.permissions import IsVolunteer
+from mahi_app.pagination import SmallResultsSetPagination
 
 
 def missingDataErrorResponse(message):
@@ -85,11 +87,26 @@ class CauseViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = CauseDetailSerializer(instance)
         return Response(serializer.data)
-    
+
+    @action(detail=True, methods=['GET'], url_name='get_similar_causes',
+            url_path='get_similar_causes',
+            pagination_class=SmallResultsSetPagination)
+    def get_similar_causes(self, request, pk):
+        instance = self.get_object()
+        queryset = Cause.objects.filter(tag__in=instance.tag.all())\
+            .filter(is_whitelisted=True).exclude(id=pk)
+        page = self.paginate_queryset(queryset)
+        serializer = CauseSerializer(
+            page,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
+
     @action(detail=True, methods=['PATCH'], url_name='update_liked_user',
             url_path='update_liked_user')
     def update_liked_user(self, request, pk):
-        user = User.objects.get(id = request.user.id)
+        user = User.objects.get(id=request.user.id)
         instance = self.get_object()
         if user not in instance.liked_by.all():
             instance.liked_by.add(user)
@@ -129,6 +146,24 @@ class CauseViewSet(viewsets.ModelViewSet):
             'message': 'Cause whitelisted successfully',
         }
         return Response(data=response_data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['GET'], url_name='get_more_suggestions',
+            url_path='get_more_suggestions',
+            permission_classes=[permissions.AllowAny, ])
+    def get_more_suggestions(self, request, pk):
+        instance = self.get_object()
+        suggestions = instance.cause_suggestions.all()[5:]
+        suggestions_serializer = SuggestionSerializer(suggestions, many=True)
+        return Response(suggestions_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['GET'], url_name='get_more_activities',
+            url_path='get_more_activities',
+            permission_classes=[permissions.AllowAny, ])
+    def get_more_activities(self, request, pk):
+        instance = self.get_object()
+        activities = instance.cause_activities.all()[3:]
+        activities_serializer = ActivitySerializer(activities, many=True)
+        return Response(activities_serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         request.data._mutable = True
