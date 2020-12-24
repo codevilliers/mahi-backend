@@ -82,12 +82,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
 
 class DonationViewSet(viewsets.ModelViewSet):
-    permission_classes = [CreateOrReadOnly, ]
+    permission_classes = [CreateOrReadOnly &
+                          permissions.IsAuthenticatedOrReadOnly ]
     queryset = Donation.objects.all()
     serializer_class = DonationSerializer
 
 
 class SuggestionViewSet(viewsets.ModelViewSet):
-    permission_classes = [CreateOrReadOnly, ]
+    permission_classes = [CreateOrReadOnly
+                          & permissions.IsAuthenticatedOrReadOnly]
     queryset = Suggestion.objects.all()
     serializer_class = SuggestionSerializer
