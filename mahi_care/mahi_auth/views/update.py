@@ -1,8 +1,9 @@
+from threading import Timer
 from rest_framework.generics import UpdateAPIView, GenericAPIView
 from rest_framework import permissions, response, status
 from firebase_admin import auth, _auth_utils
 
-from mahi_auth.serializers.user import UserSerializer
+from mahi_auth.serializers.user import UserUpdateSerializer, WhoAmISerializer
 
 
 def sync_with_firebase(user):
@@ -15,7 +16,7 @@ def sync_with_firebase(user):
 
 class UpdateUser(UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
-    serializer_class = UserSerializer
+    serializer_class = UserUpdateSerializer
 
     def get_object(self):
         user = self.request.user
@@ -25,6 +26,7 @@ class UpdateUser(UpdateAPIView):
         user = request.user
         instance = self.get_object()
         data = request.data
+        sanitized_data = {}
         if user.sign_in_provider != 'phone':
             sanitized_data = {
                 'phone_number': data.get('phone_number', user.phone_number)
@@ -44,8 +46,6 @@ class UpdateUser(UpdateAPIView):
                 )
         else:
             sanitized_data = {
-                'first_name': data.get('first_name', user.first_name),
-                'last_name': data.get('last_name', user.last_name),
                 'email': data.get('email', user.email),
             }
             if user.email == data.get('email'):
@@ -54,11 +54,8 @@ class UpdateUser(UpdateAPIView):
                 email_verified = False
             sanitized_data['email_verified'] = email_verified
             try:
-                display_name = f"{sanitized_data['first_name']} " \
-                               f"{sanitized_data['last_name']}"
                 auth.update_user(
                     user.firebase_uid,
-                    display_name=display_name,
                     email=sanitized_data['email'],
                     email_verified=sanitized_data['email_verified']
                 )
@@ -70,13 +67,19 @@ class UpdateUser(UpdateAPIView):
                     data=response_data,
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        serializer = self.get_serializer(
+        display_picture = data.get('display_picture')
+        print(display_picture)
+        if display_picture:
+            sanitized_data['display_picture'] = display_picture
+        serializer = UserUpdateSerializer(
             instance,
             data=sanitized_data,
-            partial=True
+            partial=True,
         )
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+
+        user_serializer = WhoAmISerializer(user, context={'request': request})
 
         if getattr(instance, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset,
@@ -84,7 +87,7 @@ class UpdateUser(UpdateAPIView):
             # instance.
             instance._prefetched_objects_cache = {}
 
-        return response.Response(serializer.data)
+        return response.Response(user_serializer.data)
 
 
 class SyncWithFirebaseView(GenericAPIView):
@@ -92,11 +95,9 @@ class SyncWithFirebaseView(GenericAPIView):
 
     def post(self, request):
         user = request.user
-        # TODO: execute this function asynchronously in loop
-        #  for fixed time interval
-        #  with each iteration after a fixed time say 15s
-        sync_with_firebase(user)
+        timer = Timer(120.0, sync_with_firebase, [user, ])
+        timer.start()
         response_data = {
-            'email_verified': user.email_verified
+            'message': 'Request received'
         }
         return response.Response(data=response_data, status=status.HTTP_200_OK)

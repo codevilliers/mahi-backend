@@ -7,6 +7,7 @@ from firebase_admin import auth
 
 from mahi_auth.models import User
 from mahi_auth.serializers.user import UserSerializer, WhoAmISerializer
+from mahi_auth.views.update import sync_with_firebase
 
 
 def get_success_response(user):
@@ -45,6 +46,7 @@ class Login(GenericAPIView):
             email = decoded_token.get('email')
             phone_number = decoded_token.get('phone_number')
             firebase_info = decoded_token.get('firebase')
+            email_verified = decoded_token.get('email_verified', False)
             sign_in_provider = firebase_info.get('sign_in_provider', 'django')
             if email is None and phone_number is None:
                 response_data = {
@@ -57,6 +59,9 @@ class Login(GenericAPIView):
             if email is not None:
                 try:
                     request_user = User.objects.get(email=email)
+                    if email_verified != request_user.email_verified:
+                        request_user.email_verified = email_verified
+                        request_user.save()
                     login(request, request_user)
                     return get_success_response(request_user)
                 except User.DoesNotExist:
@@ -101,7 +106,6 @@ class Login(GenericAPIView):
                 user_object['first_name'] = None
                 user_object['last_name'] = None
 
-            email_verified = decoded_token.get('email_verified', False)
             user_object['email_verified'] = email_verified
 
             user_serializer = UserSerializer(data=user_object)

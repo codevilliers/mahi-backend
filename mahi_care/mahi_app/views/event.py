@@ -24,7 +24,7 @@ def validate_activity(cause, activity_description):
     if activity == 'DTN':
         try:
             activity_value = int(activity_value)
-            if activity_value > cause.raised:
+            if activity_value > 0:
                 cause.raised = activity_value
                 cause.save()
                 return True
