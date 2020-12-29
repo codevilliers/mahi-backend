@@ -1,8 +1,8 @@
-from rest_framework import generics, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import permissions, status, filters
+from rest_framework import permissions, status
 from django.db.models import Count
 
 from mahi_app.models import Cause
@@ -11,7 +11,7 @@ from mahi_app.serializers import CauseSerializer, SuggestionSerializer, \
     ActivitySerializer
 from mahi_app.serializers.cause import CauseDetailSerializer, \
     CauseCreateSerializer
-from mahi_app.permissions import IsVolunteer
+from mahi_app.permissions import IsVolunteer, CausePermissions
 from mahi_app.pagination import SmallResultsSetPagination
 
 
@@ -23,7 +23,7 @@ def missingDataErrorResponse(message):
 
 
 class CauseViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly & CausePermissions]
     queryset = Cause.objects.filter(is_whitelisted=True)
     serializer_class = CauseSerializer
 
