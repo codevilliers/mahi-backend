@@ -85,7 +85,7 @@ class CauseViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = CauseDetailSerializer(instance)
+        serializer = CauseDetailSerializer(instance, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=True, methods=['GET'], url_name='get_similar_causes',
