@@ -3,10 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Migrations
-migrations/*
-!migrations/__init__.py
-
 # Configuration file
 base.yml
 mahi_firebase.json

@@ -21,13 +21,17 @@ CONFIGURATION = yaml.safe_load(CONFIGURATION_FILE)
 
 SECRETS = CONFIGURATION['secrets']
 DATABASE = CONFIGURATION['services']['database']
+ENVIRONMENT = CONFIGURATION['environment']
 
 SECRET_KEY = SECRETS['secretKey']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+IS_PRODUCTION_ENV = ENVIRONMENT['production']
+HOST_URL = ENVIRONMENT['hostURL']
 
-ALLOWED_HOSTS = ['*']
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = not IS_PRODUCTION_ENV
+
+ALLOWED_HOSTS = [HOST_URL, ]
 
 
 # Application definition
@@ -40,14 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'corsheaders',  # remove in production
     'mahi_auth.apps.MahiAuthConfig',
     'mahi_app.apps.MahiAppConfig',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # remove in production
-    'django.middleware.common.CommonMiddleware',  # remove in production
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -55,19 +56,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:8000',
-]
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:8000',
 ]
 
 ROOT_URLCONF = 'mahi_care.urls'
@@ -166,9 +154,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = '/static/'
+STATIC_URL = '/static_files/'
+STATIC_ROOT = PARENT_DIR/'static_files'
 
 # Media files
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR/'media'
+
+MEDIA_ROOT = PARENT_DIR/'media_files'

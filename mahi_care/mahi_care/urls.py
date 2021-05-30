@@ -15,17 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include,path
-# from mahi_app.urls import urls
 from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('auth/', include('mahi_auth.urls')),
-    path('mahi_app/', include("mahi_app.urls")),
+    path('mahi_admin/', admin.site.urls),
+    path('api/auth/', include('mahi_auth.urls')),
+    path('api/mahi_app/', include("mahi_app.urls")),
 ]
 
-urlpatterns += static(
-    settings.MEDIA_URL,
-    document_root=settings.MEDIA_ROOT
-)
+if not settings.IS_PRODUCTION_ENV:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )
